@@ -15,7 +15,7 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
 
     public DisplayPanel() {
         pressedKeys = new boolean[128];
-        fish1 = new Fish(100, 300, "src/fish1.png", "fish1");
+        fish1 = new Fish(100, 300, "src/fish1.png", "fish1", 200, 100);
         try{
             background = ImageIO.read(new File("src/aquarium.png"));
         } catch (IOException e) {
