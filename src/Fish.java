@@ -21,11 +21,11 @@ public class Fish extends Sprite {
         fishName = name;
         observeDistanceX = o;
         observeDistanceY = od;
-        observingRectangle = new Rectangle(x - (int)(o/2), y - (int)(od/2), o, o);
+        observingRectangle = new Rectangle(x, y, o, o);
     }
 
     public void setObservingRectangle(){
-        observingRectangle = new Rectangle(getSpriteX() - (int)(observeDistanceX/2), getSpriteY() - (int)(observeDistanceY/2), observeDistanceX, observeDistanceY);
+        observingRectangle = new Rectangle(getSpriteX(), getSpriteY(), observeDistanceX, observeDistanceY);
     }
 
     public String getFishName(){return fishName;}
@@ -41,4 +41,7 @@ public class Fish extends Sprite {
         setObservingRectangle();
     }
 
+    public Rectangle getObservingRectangle() {
+        return observingRectangle;
+    }
 }
