@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Fish extends Sprite {
 
@@ -6,6 +7,7 @@ public class Fish extends Sprite {
     private int observeDistanceX;
     private int observeDistanceY;
     private Rectangle observingRectangle;
+    private ArrayList<String> dialogue;
 
 
     public Fish(String n, String name){
@@ -29,6 +31,7 @@ public class Fish extends Sprite {
     }
 
     public String getFishName(){return fishName;}
+    public ArrayList<String> getDialogue(){return dialogue;}
 
     @Override
     public void incrementSpriteX(int x){

@@ -24,7 +24,7 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
 
         fish1 = new Fish(100, 300, "src/fish1.png", "fish1", 100, 80);
         fish1.addSource("src/fish1_2.png");
-        fish2 = new Fish(700, 100, "src/fish2.png", "fish2", 220, 160);
+        fish2 = new Fish(700, 100, "src/fish2.png", "fish2", 165, 101);
         fish2.addSource("src/fish2_2.png");
         fish2.switchSources(1);
 
@@ -107,7 +107,9 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
             fish1.incrementSpriteY(-5);
         }
         if(pressedKeys[KeyEvent.VK_S]) {
-            fish1.incrementSpriteY(5);
+            if(fish1.getSpriteY()<545) {
+                fish1.incrementSpriteY(5);
+            }
         }
         fish1.setObservingRectangle();
     }
@@ -117,7 +119,7 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
         moveFish1();
         repaint();
         if(fish1.getObservingRectangle().intersects(fish2.getObservingRectangle())){
-            fish2.incrementSpriteY(5);
+
         }
     }
 }
