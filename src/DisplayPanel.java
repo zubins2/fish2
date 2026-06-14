@@ -45,7 +45,7 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
         pressedKeys = new boolean[128];
         timer = new Timer(10, this);
 
-        castleEntrance = new Rectangle(35,550,39, 74);
+        castleEntrance = null;
 
         fish1 = new Fish(100, 300, "src/fish1.png", "fish1", 100, 80);
         fish1.addSource("src/fish1_2.png");
@@ -91,12 +91,22 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
             System.out.println(e.getMessage());
         }
         try {
-            backgrounds[1][0] = ImageIO.read(new File("src/castle.png"));
+            backgrounds[1][0] = ImageIO.read(new File("src/castle - Copy.png"));
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
         try {
             backgrounds[0][0] = ImageIO.read(new File("src/castle1_fish2.png"));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        try {
+            backgrounds[0][1] = ImageIO.read(new File("src/castle2_fish2.png"));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        try {
+            backgrounds[0][2] = ImageIO.read(new File("src/castle3_fish2.png"));
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -182,7 +192,9 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
 
     public void moveFish1(){
         if(pressedKeys[KeyEvent.VK_D]) {
-            fish1.incrementSpriteX(5);
+            if(fish1.getSpriteX()<815) {
+                fish1.incrementSpriteX(5);
+            }
             fish1.switchSources(0);
         }
 
@@ -190,13 +202,18 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
             if(backgroundsIndexR == 1 && backgroundsIndexC == 0){
                 if(fish1.getSpriteX()>450 || isKey) fish1.incrementSpriteX(-5);
             } else {
-                fish1.incrementSpriteX(-5);
+                if(fish1.getSpriteX()>-15){
+                    fish1.incrementSpriteX(-5);
+                }
+
             }
             fish1.switchSources(1);
         }
 
         if(pressedKeys[KeyEvent.VK_W]) {
-            fish1.incrementSpriteY(-5);
+            if(fish1.getSpriteY()>-5){
+                fish1.incrementSpriteY(-5);
+            }
         }
 
         if(pressedKeys[KeyEvent.VK_S]) {
@@ -206,7 +223,11 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
             else if(backgroundsIndexC == 0 && backgroundsIndexR == 1){
                 if(fish1.getSpriteY()<545) fish1.incrementSpriteY(5);
             }
-            else fish1.incrementSpriteY(5);
+            else {
+                if(fish1.getSpriteY()<655){
+                    fish1.incrementSpriteY(5);
+                }
+            }
         }
         fish1.setObservingRectangle();
     }
@@ -224,18 +245,26 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
     public void changeBackground(){
         if(fish1.getSpriteX()>810) {
             if(backgroundsIndexC + 1 < backgrounds[0].length) {
-                backgroundsIndexC++;
                 fish1.setSpriteX(0);
+                backgroundsIndexC++;
             }
         }
         if(fish1.getSpriteX()<-10) {
             if(backgroundsIndexC - 1 > -1) {
-                backgroundsIndexC--;
                 fish1.setSpriteX(800);
+                backgroundsIndexC--;
             }
         }
-        if(backgroundsIndexR == 1 && backgroundsIndexC == 0){
-            if(castleEntrance.intersects(fish1.getObservingRectangle())) backgroundsIndexR = 0;
+        if(backgroundsIndexR == 1 && backgroundsIndexC == 0 && isKey){
+            enterCastle();
+        }
+    }
+
+    public void enterCastle(){
+        if(castleEntrance != null && fish1.getObservingRectangle().intersects(castleEntrance)) {
+            fish1.setSpriteX(0);
+            fish1.setSpriteY(600);
+            backgroundsIndexR = 0;
         }
     }
 
@@ -296,6 +325,11 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
                 loseLife();
             }
             getKey();
+        }
+        if(backgroundsIndexR == 1 && backgroundsIndexC == 0){
+            castleEntrance = new Rectangle(35,550,39, 74);
+        } else {
+            castleEntrance = null;
         }
         repaint();
     }
