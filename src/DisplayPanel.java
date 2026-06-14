@@ -1,5 +1,3 @@
-import org.w3c.dom.css.Rect;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -24,6 +22,12 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
     private int currentRecovery;
 
     private Fish fish2;
+    private Fish maybeFish;
+    private boolean sharkAlive;
+    private int bubbleTimer;
+    private int bubbleCounter;
+    private ArrayList<Sprite> activeBubbles;
+    private ArrayList<BufferedImage> sharkHearts;
 
     private Sprite hook1;
     private boolean hook1down;
@@ -67,6 +71,21 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
         fish2 = new Fish(700, 100, "src/fish2.png", "fish2", 165, 101);
         fish2.addSource("src/fish2_2.png");
         fish2.switchSources(1);
+        maybeFish = new Fish(680, 160, "src/shark_guard_fish2.png", "shark guard", 200, 500);
+        sharkAlive = true;
+        bubbleTimer = 1000;
+        bubbleCounter = 1;
+        activeBubbles = new ArrayList<>();
+        sharkHearts = new ArrayList<>();
+        for(int i = 0; i < 3; i++){
+            BufferedImage temp;
+            try{
+                temp = ImageIO.read(new File("src/shark_health_fish2.png"));
+                sharkHearts.add(temp);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
         hook1 = new Sprite(200, -400, "src/hook.png");
         hook1down = true;
@@ -129,11 +148,23 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
                 g.drawImage(fishHearts.get(i), 10 + (i*40), 10, null);
             }
         }
-        if(backgroundsIndexR ==0){}
+        if(backgroundsIndexR ==0){
+            if(backgroundsIndexC == 1){
+                if(sharkAlive){
+                    g.drawImage(maybeFish.getImage(), maybeFish.getSpriteX(), maybeFish.getSpriteY(), null);
+                    for(Sprite bubble : activeBubbles){
+                        g.drawImage(bubble.getImage(), bubble.getSpriteX(), bubble.getSpriteY(), null);
+                    }
+                    for(int i = 0; i < sharkHearts.size(); i++){
+                        g.drawImage(sharkHearts.get(i), 860-(i*40), 10, null);
+                    }
+                }
+            }
+        }
         if(backgroundsIndexR == 1){
             if(backgroundsIndexC == 0){}
             if(backgroundsIndexC == 1){
-                g.drawImage(fish2.getImage(), fish2.getSpriteX(), fish2.getSpriteY(), null);
+                //g.drawImage(fish2.getImage(), fish2.getSpriteX(), fish2.getSpriteY(), null);
             }
             if(backgroundsIndexC == 2){
                 g.drawImage(hook1.getImage(), hook1.getSpriteX(),hook1.getSpriteY(),null);
@@ -148,14 +179,10 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
 
 
     @Override
-    public void mouseClicked(MouseEvent e) {
-
-    }
+    public void mouseClicked(MouseEvent e) {}
 
     @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
+    public void mousePressed(MouseEvent e) {}
 
     @Override
     public void mouseReleased(MouseEvent e) {
@@ -164,19 +191,13 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
     }
 
     @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
+    public void mouseEntered(MouseEvent e) {}
 
     @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
+    public void mouseExited(MouseEvent e) {}
 
     @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
+    public void keyTyped(KeyEvent e) {}
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -311,6 +332,44 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
         if(keyRect().intersects(fish1.getObservingRectangle())) isKey = true;
     }
 
+    private void sharkGuardRoom(){
+        if(sharkAlive){
+            if(bubbleTimer >= 1000){
+                activeBubbles.add(new Sprite(680, fish1.getSpriteY(), "src/bubble_fish2.png"));
+                if(bubbleCounter == 3){
+                    bubbleCounter = 0;
+                    int y = fish1.getSpriteY();
+                    boolean maybe = ((1 + (int)(Math.random()*2)) % 2 == 0);
+                    if(maybe){y += 60;} else {y -= 60;}
+                    activeBubbles.add(new Sprite(680, y, "src/bubble_fish2.png"));
+                }
+                bubbleTimer = 0;
+                bubbleCounter++;
+            } else {
+                for(int i = 0; i < activeBubbles.size(); i++){
+                    activeBubbles.get(i).incrementSpriteX(-4);
+                    if(activeBubbles.get(i).getSpriteX()<-39) activeBubbles.remove(i);
+                }
+                bubbleTimer += 15;
+            }
+            if(maybeFish.getObservingRectangle().intersects(fish1.getObservingRectangle())){
+                if(sharkHearts.size() > 1) sharkHearts.removeLast();
+                else {
+                    sharkHearts.removeLast();
+                    sharkAlive = false;
+                }
+            }
+        }
+    }
+
+    private boolean bubbleDamage(){
+        for(Sprite bubble : activeBubbles){
+            Rectangle bub = new Rectangle(bubble.getSpriteX(), bubble.getSpriteY(), 40, 40);
+            if(bub.intersects(fish1.getObservingRectangle())) return true;
+        }
+        return false;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         moveFish1();
@@ -330,6 +389,12 @@ public class DisplayPanel extends JPanel implements MouseListener, KeyListener, 
             castleEntrance = new Rectangle(35,550,39, 74);
         } else {
             castleEntrance = null;
+        }
+        if(backgroundsIndexR == 0 && backgroundsIndexC == 1){
+            sharkGuardRoom();
+            if(bubbleDamage() && sharkAlive){
+                loseLife();
+            }
         }
         repaint();
     }
